@@ -3,11 +3,14 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { addHours } from 'date-fns';
 import { NavBar } from '../components/NavBar';
 import { localizer, getMessagesEs } from '../../helpers';
+import { CalendarEvent } from '../components/CalendarEvent';
+import { useState } from 'react';
+import { CalendarModal } from '../components/CalendarModal';
 
 
 
 const events= [{
-  title: 'Cumpleaños de Alexis',
+  title: 'Cumpleaños del Jefe ',
   notes: 'Comprar pastel',
   start: new Date(),
   end: addHours( new Date(), 2),
@@ -20,8 +23,9 @@ const events= [{
 
 export const CalendarPage = () => {
 
+  const [lastView, setLastView] = useState(localStorage.getItem('lastView') || 'week');
+
   const eventStyleGetter = ( event, start, end, isSelected ) => {
-      console.log({event, start, end, isSelected});
 
       const style = {
         backgroundColor: '#347Cf7',
@@ -35,6 +39,19 @@ export const CalendarPage = () => {
       }
   }
 
+  const onDoubleClick = (e) => {
+    console.log({ doubleClick : e});
+  }
+
+  const onSelect = (e) => {
+    console.log({ click : e});
+  }
+
+  const onViewChanged = (e) =>{
+    //almacenar en localStorage para restablecer a la hora de la carga del navegador
+    localStorage.setItem('lastView', e);
+    setLastView(e); 
+  }
 
   return (
     <div>
@@ -42,14 +59,23 @@ export const CalendarPage = () => {
 
       <Calendar
         culture='es'
-        localizer={localizer}
-        events={events}
+        localizer={ localizer }
+        events={ events }
+        defaultView={ lastView }
         startAccessor="start"
         endAccessor="end"
         style={{ height: 'calc( 100vh - 80px)' }}
-        messages={getMessagesEs()}
+        messages={ getMessagesEs() }
         eventPropGetter={ eventStyleGetter }
+        components={{
+          event: CalendarEvent,
+        }}
+        onDoubleClickEvent={ onDoubleClick }
+        onSelectEvent={ onSelect }
+        onView={ onViewChanged }
       />
+
+        <CalendarModal />
 
     </div>
   )
