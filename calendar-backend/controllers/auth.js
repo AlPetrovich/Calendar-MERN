@@ -20,7 +20,7 @@ const createUser = async(req, res = response) =>{
         //encriptar contraseña
         const salt = bcrypt.genSaltSync();
         user.password = bcrypt.hashSync( password, salt );
-        
+
         await user.save();
     
         res.status(201).json({
@@ -39,16 +39,44 @@ const createUser = async(req, res = response) =>{
 
 
 //* login user
-const loginUser =(req, res = response) =>{
+const loginUser = async(req, res = response) =>{
     
     const { email, password } = req.body;
 
-    res.json({
-        ok: true,
-        msg: 'login',
-        email,
-        password
-    })
+    try {
+        //verificar que el usuario exista
+        const user = await User.findOne( { email } );
+        // null === true
+        if( !user ){
+            return res.status(400).json({
+                ok: false,
+                msg: 'User or password incorrect.'
+            });
+        }
+
+        // Confirmar que la contraseña sea correcta
+        const validPassword = bcrypt.compareSync( password, user.password );
+        if ( !validPassword ){
+            return res.status(400).json({
+                ok: false,
+                msg: 'Password incorrect.'
+            });
+        }
+
+        // Generar el token JWT
+        res.json({
+            ok: true,
+            uid: user._id,
+            name: user.name,
+        })
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Por favor hable con el administrador.',
+        })
+    }
 }
 
 
