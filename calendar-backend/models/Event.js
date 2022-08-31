@@ -19,9 +19,18 @@ const EventSchema = Schema({
     },
     user:{
         type: Schema.Types.ObjectId, //le dice a moongose que es una referencia 
-        ref: 'User' //a que modelo se refiere
+        ref: 'User', //a que modelo se refiere
+        required: true
     }
     
+});
+
+//modificar response 
+EventSchema.method('toJSON', function(){
+    //extraer version y id, todo lo demas no
+    const {__v, _id, ...object} = this.toObject(); //referencia a todo el objeto que se serializa (id-title-start-end)
+    object.id = _id;
+    return object;
 });
 
 module.exports = model('Event', EventSchema);
