@@ -68,6 +68,7 @@ const updateEvent = async(req, res = response) =>{
             ...req.body,
             user: uid
         }
+        //retornar ultima version del evento, new = true
         const eventUpdated = await Event.findByIdAndUpdate(eventId, newEvent, {new: true});
 
         res.json({
@@ -88,15 +89,36 @@ const updateEvent = async(req, res = response) =>{
 
 //* deleteEvent
 const deleteEvent = async(req, res = response) =>{
+
+    const eventId = req.params.id;
+    const uid = req.uid;
+
     try {
-        //obtener id del evento
-        const id = req.params.id;
+        //verificar que el evento existe
+        const event = await Event.findById(eventId); 
+        if(!event){
+            return res.status(404).json({
+                ok: false,
+                msg: 'El evento no existe.',
+            });
+        }
+        //persona que creo el evento puede eliminarlo 
+        if(event.user.toString() !== uid ){
+            return res.status(401).json({
+                ok: false,
+                msg: 'No tienes permisos para actualizar este evento.',
+            });
+        }
+
+        //Eliminar eventos
+        await Event.findByIdAndDelete(eventId);
         res.json({
-            id,
             ok: true,
-            msg: 'eliminar eventos'
+            msg: 'Evento eliminado.'
         });
+        
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             ok: false,
             msg: 'Por favor hable con el administrador.',
