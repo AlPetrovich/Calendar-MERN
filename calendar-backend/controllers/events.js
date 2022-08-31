@@ -106,7 +106,7 @@ const deleteEvent = async(req, res = response) =>{
         if(event.user.toString() !== uid ){
             return res.status(401).json({
                 ok: false,
-                msg: 'No tienes permisos para actualizar este evento.',
+                msg: 'No tienes permisos para eliminar este evento.',
             });
         }
 
