@@ -16,20 +16,14 @@ const getEvents = async(req, res = response) =>{
 }
 
 //* createEvent
-const createEvent = async(req, res = response) =>{
-    try {
-        res.status(201).json({
-            ok: true,
-            msg: 'crear eventos'
-        });
+const createEvent = (req, res = response) =>{
     
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            ok: false,
-            msg: 'Por favor hable con el administrador.',
-        });
-    }
+    console.log(req.body);
+
+    res.json({
+        ok: true,
+        msg: 'crear evento'
+    });
 }
 
 
