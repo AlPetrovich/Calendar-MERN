@@ -1,25 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { addHours } from 'date-fns';
 
-
-const tempEvent = {
-    _id: new Date().getTime(),
-    tile: 'Cumpleaños del jefe',
-    notes: 'Comprar pastel',
-    start: new Date(),
-    end: addHours( new Date(), 2),
-    bgColor: '#fafafa',
-    user:{
-      _id: '123',
-      name: 'Alexis',
-    }
-}
+/* cod temporal */
+// import { addHours } from 'date-fns';
+// const tempEvent = {
+//     id: new Date().getTime(),
+//     tile: 'Cumpleaños del jefe',
+//     notes: 'Comprar pastel',
+//     start: new Date(),
+//     end: addHours( new Date(), 2),
+//     bgColor: '#fafafa',
+//     user:{
+//       id: '123',
+//       name: 'Alexis',
+//     }
+// }
 
 export const calendarSlice = createSlice({
    name: 'calendar',
    initialState: { 
+      isLoadingEvents: true,
       events: [
-        tempEvent
+        //tempEvent
       ],
       activeEvent: null
    },
@@ -34,7 +35,7 @@ export const calendarSlice = createSlice({
        onUpdateEvent: (state, { payload }) =>{
             //si actualizo ya tengo el id
             state.events = state.events.map( event => {
-               if( event._id === payload._id ){
+               if( event.id === payload.id ){
                   return payload; // nuevo evento
                }
 
@@ -43,12 +44,24 @@ export const calendarSlice = createSlice({
        },
       onDeleteEvent: (state) =>{
          if( state.activeEvent ){
-            state.events = state.events.filter( event => event._id !== state.activeEvent._id );
+            state.events = state.events.filter( event => event.id !== state.activeEvent.id );
             state.activeEvent = null; // desactivo el evento
          }
+      },
+      onLoadEvents: ( state, { payload = [] } ) =>{
+         //llamo cuando ya tengo los eventos
+         state.isLoadingEvents = false;
+         //state.events = payload; funciona pero doy una vuelta mas de rosca
+         //barrer payload y confirmar que el evento no este duplicado por id
+         payload.forEach( event =>{
+            const eventExists = state.events.some( dbEvent => dbEvent.id === event.id ); //apenas encuentra devuelve true
+            if( !eventExists ){
+               state.events.push( event ); //si no existe agrego el evento
+            }
+         })
       }
     }
 });
 
 
-export const { onSetActiveEvent, onAddNewEvent, onUpdateEvent, onDeleteEvent } = calendarSlice.actions;
+export const { onSetActiveEvent, onAddNewEvent, onUpdateEvent, onDeleteEvent, onLoadEvents } = calendarSlice.actions;
